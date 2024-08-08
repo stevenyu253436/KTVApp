@@ -1,0 +1,51 @@
+﻿<Window x:Class="KTVApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:KTVApp"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="700" Width="1200">
+    <Window.Resources>
+        <Style TargetType="Rectangle" x:Key="StatusRectangleStyle">
+            <Setter Property="Fill" Value="Transparent"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ServiceStatus}" Value="Service">
+                    <Setter Property="Fill" Value="Red"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding ServiceStatus}" Value="NonService">
+                    <Setter Property="Fill" Value="Green"/>
+                </DataTrigger>
+                <!-- You can add more DataTriggers for other statuses if needed -->
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+    <Grid Background="#F4EAD5">
+        <ItemsControl ItemsSource="{Binding Rooms}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border BorderBrush="Black" BorderThickness="1" Margin="5">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="{Binding RoomNumber}" FontWeight="Bold" FontSize="16" HorizontalAlignment="Left" Margin="5,0"/>
+                            <TextBlock Text="{Binding Status}" Foreground="Blue" FontSize="14" HorizontalAlignment="Center" Grid.Row="1"/>
+                            <TextBlock Text="{Binding TimeRange}" FontSize="14" HorizontalAlignment="Center" Grid.Row="2"/>
+                            <Rectangle Fill="Transparent" MouseDown="Rectangle_MouseDown" Grid.Row="0" Grid.RowSpan="3"/>
+                            <Rectangle Width="20" Height="10" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource StatusRectangleStyle}" Grid.Row="1"/>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Columns="5"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+    </Grid>
+</Window>
