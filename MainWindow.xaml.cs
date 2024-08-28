@@ -55,7 +55,7 @@ namespace KTVApp
             DataContext = this;
 
             // 启动 TCP 服务器
-            _tcpServer = new TcpServer(1001);
+            _tcpServer = new TcpServer(1000);
             _tcpServer.MessageReceived += OnMessageReceived; // 订阅事件
             _tcpServer.Start();
         }
