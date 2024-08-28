@@ -51,10 +51,11 @@ namespace KTVApp
             //AllocConsole(); // 分配一个控制台窗口
             Rooms = new ObservableCollection<Room>();
             LoadRoomsFromFile("room.txt");
+            LoadRoomStatesFromFile("roomstates.txt"); // 加载房间的状态
             DataContext = this;
 
             // 启动 TCP 服务器
-            _tcpServer = new TcpServer(1000);
+            _tcpServer = new TcpServer(1001);
             _tcpServer.MessageReceived += OnMessageReceived; // 订阅事件
             _tcpServer.Start();
         }
@@ -129,6 +130,58 @@ namespace KTVApp
             }
         }
 
+        private void LoadRoomStatesFromFile(string filePath)
+        {
+            if (!File.Exists(filePath))
+            {
+                MessageBox.Show($"File not found: {filePath}");
+                return;
+            }
+
+            try
+            {
+                var lines = File.ReadAllLines(filePath);
+                foreach (var line in lines)
+                {
+                    var parts = line.Split(';');
+                    if (parts.Length == 5)
+                    {
+                        var roomPC = parts[0];
+                        var roomNumber = parts[1];
+                        var status = parts[2];
+                        var timeRange = parts[3];
+                        var serviceStatus = parts[4];
+
+                        var room = Rooms.FirstOrDefault(r => r.RoomPC == roomPC);
+                        if (room != null)
+                        {
+                            room.RoomNumber = roomNumber;
+                            room.Status = status;
+                            room.TimeRange = timeRange;
+                            room.ServiceStatus = serviceStatus;
+                        }
+                        else
+                        {
+                            // Room does not exist, so add a new one
+                            Rooms.Add(new Room
+                            {
+                                RoomPC = roomPC,
+                                RoomNumber = roomNumber,
+                                Status = status,
+                                TimeRange = timeRange,
+                                ServiceStatus = serviceStatus
+                            });
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error reading file: {ex.Message}");
+            }
+        }
+
+
         private void OnMessageReceived(string message)
         {
             // 解析消息
@@ -176,6 +229,25 @@ namespace KTVApp
                     }
                 }
             }
+        }
+
+        private void SaveRoomsToFile(string filePath)
+        {
+            try
+            {
+                var lines = Rooms.Select(r => $"{r.RoomPC};{r.RoomNumber};{r.Status};{r.TimeRange};{r.ServiceStatus}");
+                File.WriteAllLines(filePath, lines);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error saving file: {ex.Message}");
+            }
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            base.OnClosing(e);
+            SaveRoomsToFile("roomstates.txt"); // 使用新的文件名
         }
     }
 
